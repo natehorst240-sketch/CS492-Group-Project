@@ -1,0 +1,16 @@
+-- Sprint 1 — T1-005: Book inventory database schema
+CREATE TABLE IF NOT EXISTS books (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  isbn VARCHAR(13) NOT NULL UNIQUE,
+  title VARCHAR(255) NOT NULL,
+  author VARCHAR(255) NOT NULL,
+  category VARCHAR(100),
+  format VARCHAR(100),
+  price DECIMAL(10,2) NOT NULL,
+  quantity INT NOT NULL DEFAULT 0,
+  shelf_location VARCHAR(50),
+  reorder_threshold INT NOT NULL DEFAULT 5,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+

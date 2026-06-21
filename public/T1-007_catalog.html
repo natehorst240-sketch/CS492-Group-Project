@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>T1-007 — AceReads Catalog</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f0f0; margin: 20px; color: #222; }
+    h1 { color: #17365d; }
+    input, button { padding: 7px; margin: 3px; }
+    table { width: 100%; border-collapse: collapse; background: white; margin-top: 12px; }
+    th, td { border: 1px solid #bbb; padding: 7px; text-align: left; }
+    th { background: #2f75b5; color: white; }
+    .form-panel { background: white; border: 1px solid #999; padding: 12px; margin-top: 12px; display: none; }
+    #message { margin: 10px 0; color: #a00; }
+  </style>
+</head>
+<body>
+  <h1>Ana's Anomalous Anthologies</h1>
+  <p>T1-007 — Book Catalog Management</p>
+
+  <div>
+    <input id="search" placeholder="Search title, author, or ISBN">
+    <input id="category" placeholder="Category">
+    <input id="format" placeholder="Format">
+    <button type="button" onclick="loadBooks()">Search</button>
+    <button type="button" onclick="openAddForm()">Add Book</button>
+  </div>
+
+  <div id="message"></div>
+  <section class="form-panel" id="form-panel">
+    <h2 id="form-title">Add New Book</h2>
+    <input id="f-isbn" placeholder="ISBN">
+    <input id="f-title" placeholder="Title">
+    <input id="f-author" placeholder="Author">
+    <input id="f-category" placeholder="Category">
+    <input id="f-format" placeholder="Format">
+    <input id="f-price" placeholder="Price" type="number" step="0.01">
+    <input id="f-quantity" placeholder="Quantity" type="number">
+    <input id="f-shelf" placeholder="Shelf">
+    <input id="f-reorder" placeholder="Reorder threshold" type="number">
+    <div>
+      <button type="button" onclick="saveBook()">Save</button>
+      <button type="button" onclick="closeForm()">Cancel</button>
+    </div>
+  </section>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th><th>Author</th><th>ISBN</th><th>Category</th>
+        <th>Format</th><th>Price</th><th>Stock</th><th>Shelf</th><th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="book-list"></tbody>
+  </table>
+
+  <script>
+    let editingId = null;
+
+    async function requestJson(url, options) {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Request failed');
+      return data;
+    }
+
+    async function loadBooks() {
+      try {
+        const params = new URLSearchParams();
+        ['search', 'category', 'format'].forEach(function (name) {
+          const value = document.getElementById(name).value.trim();
+          if (value) params.append(name, value);
+        });
+        const books = await requestJson('/api/books?' + params.toString());
+        const tbody = document.getElementById('book-list');
+        tbody.innerHTML = '';
+        books.forEach(function (book) {
+          const row = document.createElement('tr');
+          [book.title, book.author, book.isbn, book.category || '', book.format || '',
+            '$' + Number(book.price).toFixed(2), book.quantity, book.shelf_location || '']
+            .forEach(function (value) {
+              const cell = document.createElement('td');
+              cell.textContent = value;
+              row.appendChild(cell);
+            });
+          const action = document.createElement('td');
+          const button = document.createElement('button');
+          button.textContent = 'Edit';
+          button.onclick = function () { openEditForm(book.id); };
+          action.appendChild(button);
+          row.appendChild(action);
+          tbody.appendChild(row);
+        });
+        showMessage('');
+      } catch (error) {
+        showMessage(error.message);
+      }
+    }
+
+    function openAddForm() {
+      editingId = null;
+      clearForm();
+      document.getElementById('f-isbn').disabled = false;
+      document.getElementById('form-title').textContent = 'Add New Book';
+      document.getElementById('form-panel').style.display = 'block';
+    }
+
+    async function openEditForm(id) {
+      try {
+        const book = await requestJson('/api/books/' + id);
+        editingId = id;
+        document.getElementById('f-isbn').value = book.isbn;
+        document.getElementById('f-title').value = book.title;
+        document.getElementById('f-author').value = book.author;
+        document.getElementById('f-category').value = book.category || '';
+        document.getElementById('f-format').value = book.format || '';
+        document.getElementById('f-price').value = book.price;
+        document.getElementById('f-quantity').value = book.quantity;
+        document.getElementById('f-shelf').value = book.shelf_location || '';
+        document.getElementById('f-reorder').value = book.reorder_threshold;
+        document.getElementById('f-isbn').disabled = true;
+        document.getElementById('form-title').textContent = 'Edit Book';
+        document.getElementById('form-panel').style.display = 'block';
+      } catch (error) {
+        showMessage(error.message);
+      }
+    }
+
+    async function saveBook() {
+      const payload = {
+        isbn: document.getElementById('f-isbn').value,
+        title: document.getElementById('f-title').value,
+        author: document.getElementById('f-author').value,
+        category: document.getElementById('f-category').value,
+        format: document.getElementById('f-format').value,
+        price: document.getElementById('f-price').value,
+        quantity: document.getElementById('f-quantity').value,
+        shelf_location: document.getElementById('f-shelf').value,
+        reorder_threshold: document.getElementById('f-reorder').value
+      };
+      try {
+        await requestJson(editingId ? '/api/books/' + editingId : '/api/books', {
+          method: editingId ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        closeForm();
+        loadBooks();
+      } catch (error) {
+        showMessage(error.message);
+      }
+    }
+
+    function closeForm() {
+      document.getElementById('form-panel').style.display = 'none';
+      editingId = null;
+      clearForm();
+    }
+
+    function clearForm() {
+      ['isbn', 'title', 'author', 'category', 'format', 'price', 'quantity', 'shelf', 'reorder']
+        .forEach(function (name) { document.getElementById('f-' + name).value = ''; });
+    }
+
+    function showMessage(message) {
+      document.getElementById('message').textContent = message;
+    }
+
+    loadBooks();
+  </script>
+</body>
+</html>
+

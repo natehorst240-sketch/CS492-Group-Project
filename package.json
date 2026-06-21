@@ -1,0 +1,18 @@
+{
+  "name": "acereads-team-project",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CS492 AceReads bookstore management system organized by sprint and task ID.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "check": "node --check src/server.js && node --check src/db.js && node --check src/routes/books.routes.js && node --check src/routes/orders.routes.js && node --check src/sprint-2/T2-008_order-management-backend.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mysql2": "^3.12.0"
+  }
+}
+
