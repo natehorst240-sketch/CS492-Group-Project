@@ -1,6 +1,11 @@
 // Sprint 1 — T1-004: Login and registration UI behavior
-// OWNER: Assign in the sprint planning document.
-// PASTE YOUR CODE BELOW.
+// Browser-facing UI is in public/T1-004_auth.html.
+// This helper documents the shared browser storage names.
 
-module.exports = {};
+const AUTH_STORAGE_KEYS = {
+  token: 'authToken',
+  userId: 'userId',
+  user: 'currentUser',
+};
 
+module.exports = { AUTH_STORAGE_KEYS };

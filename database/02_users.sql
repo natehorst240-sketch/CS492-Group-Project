@@ -4,7 +4,10 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash VARCHAR(255) NOT NULL,
   first_name VARCHAR(100),
   last_name VARCHAR(100),
+  email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+  failed_login_attempts INT NOT NULL DEFAULT 0,
+  account_locked BOOLEAN NOT NULL DEFAULT FALSE,
   role ENUM('customer', 'employee', 'manager', 'admin') NOT NULL DEFAULT 'customer',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-

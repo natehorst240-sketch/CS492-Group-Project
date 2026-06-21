@@ -22,8 +22,24 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash VARCHAR(255) NOT NULL,
   first_name VARCHAR(100),
   last_name VARCHAR(100),
+  email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+  failed_login_attempts INT NOT NULL DEFAULT 0,
+  account_locked BOOLEAN NOT NULL DEFAULT FALSE,
   role ENUM('customer', 'employee', 'manager', 'admin') NOT NULL DEFAULT 'customer',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS cart_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  book_id INT NOT NULL,
+  quantity INT NOT NULL DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_cart_book (user_id, book_id),
+  CONSTRAINT fk_cart_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_cart_book FOREIGN KEY (book_id) REFERENCES books(id)
 );
 
 CREATE TABLE IF NOT EXISTS orders (
@@ -54,4 +70,3 @@ INSERT IGNORE INTO books (isbn, title, author, category, format, price, quantity
 VALUES
   ('9780140328721', 'Matilda', 'Roald Dahl', 'Children', 'Paperback', 8.99, 12, 'A-01'),
   ('9780061120084', 'To Kill a Mockingbird', 'Harper Lee', 'Fiction', 'Paperback', 12.99, 8, 'B-04');
-
