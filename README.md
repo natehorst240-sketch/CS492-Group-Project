@@ -22,6 +22,7 @@ Use `API_TESTING.md` for copy-and-paste Postman requests.
 - Browser pages: `public/`
 - Database setup: `database/`
 - Final shared routes: `src/routes/`
+- Sprint planning document: `project-documents/CS492_Sprint_Planning.xlsx`
 
 Each file starts with its task ID. Open the file matching your assignment and paste or write your code below the marked comment.
 
@@ -45,3 +46,9 @@ Additional implementation-guide code was added for:
 Before working, click **Fetch origin** and **Pull origin** in GitHub Desktop. Work only in the file labeled with your task ID. Commit with a message such as `T2-003 add shopping cart UI`, then push.
 
 See [TEAM_START_HERE.md](TEAM_START_HERE.md) for screenshots-free beginner instructions.
+
+## Updating the Sprint Planning workbook
+
+See [project-documents/README.md](project-documents/README.md). GitHub cannot merge
+simultaneous Excel edits, so use one editor at a time or keep the live copy in
+OneDrive and commit updated snapshots here.
