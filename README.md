@@ -15,6 +15,9 @@ This repository is the team's shared source-code location for the CS492 AceReads
 
 Use `API_TESTING.md` for copy-and-paste Postman requests.
 
+This project uses standard Node.js `npm`. Do not install pnpm or Yarn. The
+required libraries are listed in `package.json`, and `npm install` handles them.
+
 ## Where everyone puts code
 
 - Sprint 1 work: `src/sprint-1/`

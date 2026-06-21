@@ -8,6 +8,9 @@
 4. Select `AceReads-Team-Project`.
 5. Follow the setup steps in `README.md`.
 
+The project uses the standard `npm` command included with Node.js. No pnpm
+installation is required.
+
 ## Every time you work
 
 1. Open GitHub Desktop.
