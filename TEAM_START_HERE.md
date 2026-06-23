@@ -11,6 +11,9 @@
 The project uses the standard `npm` command included with Node.js. No pnpm
 installation is required.
 
+The server uses Node.js directly. Express, React, and other web frameworks are
+not part of this project.
+
 ## Every time you work
 
 1. Open GitHub Desktop.

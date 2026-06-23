@@ -1,6 +1,6 @@
 # AceReads Team Project
 
-This repository is the team's shared source-code location for the CS492 AceReads bookstore project.
+This repository is the team's shared source-code location for the CS492 AceReads bookstore project. It uses plain Node.js HTTP handling, browser JavaScript, and MySQL. It does not use Express or a frontend framework.
 
 ## New team members: start here
 
@@ -24,7 +24,7 @@ required libraries are listed in `package.json`, and `npm install` handles them.
 - Sprint 2 work: `src/sprint-2/`
 - Browser pages: `public/`
 - Database setup: `database/`
-- Final shared routes: `src/routes/`
+- Shared server and API paths: `src/server.js`
 - Sprint planning document: `project-documents/CS492_Sprint_Planning.xlsx`
 
 Each file starts with its task ID. Open the file matching your assignment and paste or write your code below the marked comment.
@@ -37,7 +37,7 @@ Each file starts with its task ID. Open the file matching your assignment and pa
 - `T2-008`: order-management backend
 - `T2-009`: customer order-tracking page
 
-The supplied files were preserved and connected to a small Express/MySQL application.
+The supplied files were preserved and connected to a small plain Node.js/MySQL application.
 
 Additional implementation-guide code was added for:
 
