@@ -120,7 +120,8 @@ git push origin your-name/sprint2-task
 
 When you open a pull request, Vercel automatically builds a preview of your branch and posts a link in the PR comments within about 30 seconds. Click that link to see your changes running live before they are merged — no local setup needed.
 
-<img width="1889" height="894" alt="image" src="https://github.com/user-attachments/assets/03cc4715-8c43-486f-bdf6-44b9bb5f4773" />
+<img width="1892" height="901" alt="image" src="https://github.com/user-attachments/assets/f9166e0a-904c-453e-acf0-7e3025a5f5de" />
+
 
 
 ### Step 7 - Merge to main at the end of the week
