@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AceReads - Bookstore</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg,#667eea,#764ba2); min-height: 100vh; }
+
+    header {
+      background: linear-gradient(135deg,#667eea,#764ba2);
+      color: white; padding: 18px 32px;
+      display: flex; justify-content: space-between; align-items: center;
+      position: sticky; top: 0; z-index: 50;
+      box-shadow: 0 2px 12px rgba(0,0,0,.2);
+    }
+    header h1 { font-size: 1.5rem; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .user-info { font-size: 13px; color: rgba(255,255,255,.85); }
+    .role-badge { background: rgba(255,255,255,.2); padding: 2px 10px; border-radius: 10px; font-size: 11px; text-transform: uppercase; }
+    .btn { padding: 7px 18px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; }
+    .btn-white   { background: rgba(255,255,255,.15); color: white; }
+    .btn-white:hover { background: rgba(255,255,255,.28); }
+    .btn-red     { background: #e74c3c; color: white; }
+    .btn-red:hover { background: #c0392b; }
+    .owner-link  { color: rgba(255,255,255,.6); font-size: 12px; text-decoration: none; }
+    .owner-link:hover { color: white; }
+
+    /* Tabs */
+    .tabs { background: white; border-bottom: 2px solid #eee; display: flex; padding: 0 24px; }
+    .tab { padding: 14px 20px; cursor: pointer; font-size: 14px; color: #666; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+    .tab.active { color: #667eea; border-bottom-color: #667eea; font-weight: bold; }
+    .tab-content { display: none; background: #f9f9f9; min-height: calc(100vh - 120px); padding: 24px; }
+    .tab-content.active { display: block; }
+
+    /* Search bar */
+    .search-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .search-bar input, .search-bar select { padding: 9px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+    .search-bar input[type=text] { flex: 1; min-width: 200px; }
+    .btn-search { background: #667eea; color: white; border: none; padding: 9px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    .btn-search:hover { background: #5a6fd6; }
+
+    /* Book grid */
+    .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 16px; }
+    .book-card { background: white; border-radius: 8px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,.07); display: flex; flex-direction: column; }
+    .book-title { font-weight: bold; font-size: 15px; margin-bottom: 4px; }
+    .book-author { font-size: 13px; color: #666; margin-bottom: 6px; }
+    .book-category { display: inline-block; background: #eef0fb; color: #667eea; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin-bottom: 10px; }
+    .book-price { font-size: 18px; font-weight: bold; color: #2c3e50; margin-top: auto; margin-bottom: 10px; }
+    .book-stock { font-size: 12px; color: #888; margin-bottom: 8px; }
+    .btn-add { background: #27ae60; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; width: 100%; font-size: 13px; }
+    .btn-add:hover { background: #219a52; }
+    .btn-add:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* Cart */
+    .cart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .cart-empty { text-align: center; padding: 60px; color: #888; font-size: 15px; }
+    .cart-item { background: white; border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+    .cart-item-info .title { font-weight: bold; font-size: 14px; }
+    .cart-item-info .price { font-size: 13px; color: #666; }
+    .cart-qty { display: flex; align-items: center; gap: 8px; }
+    .qty-btn { background: #eee; border: none; width: 28px; height: 28px; border-radius: 4px; cursor: pointer; font-size: 16px; }
+    .qty-btn:hover { background: #ddd; }
+    .cart-line-total { font-weight: bold; min-width: 70px; text-align: right; }
+    .btn-remove { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 18px; }
+    .cart-summary { background: white; border-radius: 8px; padding: 16px; margin-top: 16px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+    .cart-total-row { display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-bottom: 12px; }
+    .btn-checkout { width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 6px; font-size: 15px; cursor: pointer; font-weight: bold; }
+    .btn-checkout:hover { background: #5a6fd6; }
+    .btn-checkout:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* Orders */
+    .order-card { background: white; border-radius: 8px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+    .order-head { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .order-head:hover { background: #fafafa; }
+    .order-meta { display: flex; align-items: center; gap: 12px; }
+    .order-num { font-weight: bold; }
+    .order-date { font-size: 13px; color: #888; }
+    .status { padding: 3px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; text-transform: capitalize; }
+    .status-pending   { background: #fff3cd; color: #856404; }
+    .status-processing { background: #cce5ff; color: #004085; }
+    .status-completed { background: #d4edda; color: #155724; }
+    .status-cancelled { background: #f8d7da; color: #721c24; }
+    .order-body { display: none; padding: 14px 16px; border-top: 1px solid #eee; }
+    .order-body.open { display: block; }
+    .order-body table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .order-body th, .order-body td { padding: 7px 10px; border: 1px solid #eee; text-align: left; }
+    .order-body th { background: #f8f8f8; }
+    .order-total { text-align: right; font-weight: bold; margin-top: 10px; font-size: 15px; }
+    .btn-cancel { background: #e74c3c; color: white; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; margin-top: 10px; }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; justify-content: center; align-items: center; }
+    .modal-overlay.show { display: flex; }
+    .modal { background: white; border-radius: 10px; padding: 32px; width: 380px; }
+    .modal h2 { margin-bottom: 18px; }
+    .modal input { width: 100%; padding: 10px 12px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+    .btn-primary { width: 100%; padding: 11px; background: #667eea; color: white; border: none; border-radius: 6px; font-size: 15px; cursor: pointer; }
+    .btn-primary:hover { background: #5a6fd6; }
+    .modal-toggle { text-align: center; margin-top: 14px; font-size: 13px; color: #666; }
+    .modal-toggle a { color: #667eea; cursor: pointer; }
+    .close-btn { float: right; background: none; border: none; font-size: 22px; cursor: pointer; color: #999; }
+    #auth-error { color: #e74c3c; font-size: 13px; margin-bottom: 10px; padding: 8px; background: #fdf0f0; border-radius: 4px; display: none; }
+    #auth-success { color: #155724; font-size: 13px; margin-bottom: 10px; padding: 8px; background: #d4edda; border-radius: 4px; display: none; }
+
+    /* Alerts */
+    .alert { position: fixed; top: 20px; right: 20px; padding: 12px 18px; border-radius: 6px; font-size: 14px; z-index: 999; max-width: 340px; }
+    .alert-success { background: #d4edda; color: #155724; }
+    .alert-error   { background: #f8d7da; color: #721c24; }
+
+    .empty { text-align: center; padding: 60px; color: #888; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>📚 AceReads</h1>
+  <div class="header-right">
+    <a href="index.html" class="owner-link">Owner Dashboard</a>
+    <span class="user-info" id="user-info" style="display:none">
+      <span id="user-email"></span>
+      <span class="role-badge">customer</span>
+    </span>
+    <button class="btn btn-white" id="login-btn" onclick="showAuthModal()">Login / Register</button>
+    <button class="btn btn-red" id="logout-btn" style="display:none" onclick="doLogout()">Logout</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('browse')">Browse Books</div>
+  <div class="tab" onclick="showTab('cart')">Cart <span id="cart-count">(0)</span></div>
+  <div class="tab" onclick="showTab('my-orders')">My Orders</div>
+</div>
+
+<!-- BROWSE -->
+<div id="browse" class="tab-content active">
+  <div class="search-bar">
+    <input type="text" id="search-input" placeholder="Search by title, author, or ISBN…" onkeydown="if(event.key==='Enter')searchBooks()">
+    <select id="cat-filter" onchange="searchBooks()">
+      <option value="">All Categories</option>
+      <option value="Fiction">Fiction</option>
+      <option value="Sci-Fi">Sci-Fi</option>
+      <option value="Classic">Classic</option>
+      <option value="Non-Fiction">Non-Fiction</option>
+      <option value="Mystery">Mystery</option>
+    </select>
+    <button class="btn-search" onclick="searchBooks()">Search</button>
+    <button class="btn-search" style="background:#888" onclick="clearSearch()">Clear</button>
+  </div>
+  <div id="book-grid" class="book-grid"></div>
+</div>
+
+<!-- CART -->
+<div id="cart" class="tab-content">
+  <div class="cart-header">
+    <h2>Your Cart</h2>
+    <button class="btn btn-red" onclick="clearCart()" style="font-size:13px">Clear Cart</button>
+  </div>
+  <div id="cart-items"></div>
+</div>
+
+<!-- MY ORDERS -->
+<div id="my-orders" class="tab-content">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <h2>My Orders</h2>
+    <button class="btn btn-white" style="background:#667eea;color:white" onclick="loadMyOrders()">↻ Refresh</button>
+  </div>
+  <div id="orders-list"></div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal">
+    <button class="close-btn" onclick="closeAuthModal()">×</button>
+    <h2 id="auth-title">Login</h2>
+    <div id="auth-error"></div>
+    <div id="auth-success"></div>
+    <div id="reg-fields" style="display:none">
+      <input type="text" id="auth-firstname" placeholder="First Name">
+      <input type="text" id="auth-lastname" placeholder="Last Name">
+    </div>
+    <input type="email" id="auth-email" placeholder="Email address">
+    <input type="password" id="auth-password" placeholder="Password">
+    <small id="pw-hint" style="display:none;color:#888;font-size:12px;margin-bottom:10px;display:none">
+      8+ chars, 1 uppercase, 1 number, 1 special character
+    </small>
+    <button class="btn-primary" id="auth-submit" onclick="submitAuth()">Login</button>
+    <div class="modal-toggle">
+      <span id="toggle-msg">Don't have an account?</span>
+      <a onclick="toggleMode()">Register</a>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+var API = '';
+var authMode = 'login';
+var token    = sessionStorage.getItem('token');
+var userId   = sessionStorage.getItem('userId');
+var cart     = JSON.parse(localStorage.getItem('acereads-cart') || '[]');
+
+// Init
+if (token && userId) restoreSession();
+loadBooks();
+renderCart();
+
+// ── Auth ────────────────────────────────────────────────────────────────────
+function restoreSession() {
+  var email = sessionStorage.getItem('userEmail');
+  if (email) updateUserDisplay(email);
+}
+
+function showAuthModal() {
+  document.getElementById('auth-modal').classList.add('show');
+  clearAuthMessages();
+}
+function closeAuthModal() { document.getElementById('auth-modal').classList.remove('show'); }
+
+function toggleMode() {
+  authMode = authMode === 'login' ? 'register' : 'login';
+  var reg = authMode === 'register';
+  document.getElementById('auth-title').textContent      = reg ? 'Register' : 'Login';
+  document.getElementById('auth-submit').textContent     = reg ? 'Create Account' : 'Login';
+  document.getElementById('toggle-msg').textContent      = reg ? 'Already have an account?' : "Don't have an account?";
+  document.getElementById('auth-modal').querySelector('.modal-toggle a').textContent = reg ? 'Login' : 'Register';
+  document.getElementById('reg-fields').style.display    = reg ? 'block' : 'none';
+  document.getElementById('pw-hint').style.display       = reg ? 'block' : 'none';
+  clearAuthMessages();
+}
+
+function submitAuth() {
+  var email    = document.getElementById('auth-email').value.trim();
+  var password = document.getElementById('auth-password').value;
+  if (!email || !password) return showAuthMsg('Please fill in email and password.', 'error');
+
+  var url  = API + (authMode === 'login' ? '/api/auth/login' : '/api/auth/register');
+  var body = { email, password };
+  if (authMode === 'register') {
+    body.first_name = document.getElementById('auth-firstname').value.trim();
+    body.last_name  = document.getElementById('auth-lastname').value.trim();
+  }
+
+  fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.error) return showAuthMsg(data.error, 'error');
+      if (authMode === 'register') {
+        showAuthMsg('Account created! Please log in.', 'success');
+        toggleMode();
+        return;
+      }
+      token  = data.token;
+      userId = data.userId;
+      sessionStorage.setItem('token',     token);
+      sessionStorage.setItem('userId',    userId);
+      sessionStorage.setItem('userEmail', data.email);
+      updateUserDisplay(data.email);
+      closeAuthModal();
+      showAlert('Welcome back!', 'success');
+    })
+    .catch(function() { showAuthMsg('Cannot connect to server.', 'error'); });
+}
+
+function doLogout() {
+  fetch(API + '/api/auth/logout', { method:'POST', headers:{'Authorization':'Bearer ' + token} });
+  token = null; userId = null;
+  sessionStorage.clear();
+  document.getElementById('user-info').style.display  = 'none';
+  document.getElementById('login-btn').style.display  = '';
+  document.getElementById('logout-btn').style.display = 'none';
+  showAlert('Logged out.', 'success');
+  document.getElementById('orders-list').innerHTML = '';
+}
+
+function updateUserDisplay(email) {
+  document.getElementById('user-email').textContent    = email;
+  document.getElementById('user-info').style.display   = 'inline-flex';
+  document.getElementById('user-info').style.gap       = '6px';
+  document.getElementById('user-info').style.alignItems = 'center';
+  document.getElementById('login-btn').style.display   = 'none';
+  document.getElementById('logout-btn').style.display  = '';
+}
+
+function showAuthMsg(msg, type) {
+  var id = type === 'error' ? 'auth-error' : 'auth-success';
+  document.getElementById(id).textContent = msg;
+  document.getElementById(id).style.display = 'block';
+}
+function clearAuthMessages() {
+  document.getElementById('auth-error').style.display   = 'none';
+  document.getElementById('auth-success').style.display = 'none';
+}
+
+// ── Tabs ────────────────────────────────────────────────────────────────────
+function showTab(id) {
+  document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(el) { el.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'my-orders') loadMyOrders();
+}
+
+// ── Books ────────────────────────────────────────────────────────────────────
+function loadBooks() { searchBooks(); }
+
+function searchBooks() {
+  var q = '?';
+  var s = document.getElementById('search-input').value.trim();
+  var c = document.getElementById('cat-filter').value;
+  if (s) q += 'search=' + encodeURIComponent(s) + '&';
+  if (c) q += 'category=' + encodeURIComponent(c) + '&';
+
+  fetch(API + '/api/books' + q)
+    .then(function(r) { return r.json(); })
+    .then(renderBooks)
+    .catch(function() {
+      document.getElementById('book-grid').innerHTML = '<p class="empty">Cannot connect to server.</p>';
+    });
+}
+
+function clearSearch() {
+  document.getElementById('search-input').value = '';
+  document.getElementById('cat-filter').value   = '';
+  loadBooks();
+}
+
+function renderBooks(books) {
+  var grid = document.getElementById('book-grid');
+  if (!books.length) { grid.innerHTML = '<p class="empty">No books found.</p>'; return; }
+  grid.innerHTML = '';
+  books.forEach(function(b) {
+    var card = document.createElement('div');
+    card.className = 'book-card';
+    card.innerHTML =
+      '<div class="book-title">' + esc(b.title) + '</div>' +
+      '<div class="book-author">by ' + esc(b.author) + '</div>' +
+      (b.category ? '<span class="book-category">' + esc(b.category) + '</span>' : '') +
+      '<div class="book-stock">' + (b.quantity_in_stock > 0 ? b.quantity_in_stock + ' in stock' : 'Out of stock') + '</div>' +
+      '<div class="book-price">$' + parseFloat(b.price).toFixed(2) + '</div>';
+    var btn = document.createElement('button');
+    btn.className = 'btn-add';
+    btn.textContent = b.quantity_in_stock > 0 ? 'Add to Cart' : 'Out of Stock';
+    btn.disabled = b.quantity_in_stock <= 0;
+    btn.onclick = function() { addToCart(b); };
+    card.appendChild(btn);
+    grid.appendChild(card);
+  });
+}
+
+// ── Cart ─────────────────────────────────────────────────────────────────────
+function addToCart(book) {
+  var existing = cart.find(function(i) { return i.id === book.id; });
+  if (existing) {
+    existing.quantity++;
+  } else {
+    cart.push({ id: book.id, title: book.title, price: book.price, quantity: 1 });
+  }
+  saveCart();
+  renderCart();
+  showAlert('"' + book.title + '" added to cart', 'success');
+}
+
+function renderCart() {
+  var container = document.getElementById('cart-items');
+  var count     = cart.reduce(function(s,i) { return s + i.quantity; }, 0);
+  document.getElementById('cart-count').textContent = '(' + count + ')';
+
+  if (!cart.length) {
+    container.innerHTML = '<p class="cart-empty">Your cart is empty.</p>';
+    return;
+  }
+
+  var total = 0;
+  container.innerHTML = '';
+
+  cart.forEach(function(item, idx) {
+    total += item.price * item.quantity;
+    var div = document.createElement('div');
+    div.className = 'cart-item';
+    div.innerHTML =
+      '<div class="cart-item-info">' +
+        '<div class="title">' + esc(item.title) + '</div>' +
+        '<div class="price">$' + parseFloat(item.price).toFixed(2) + ' each</div>' +
+      '</div>' +
+      '<div class="cart-qty">' +
+        '<button class="qty-btn" onclick="changeQty(' + idx + ',-1)">−</button>' +
+        '<span>' + item.quantity + '</span>' +
+        '<button class="qty-btn" onclick="changeQty(' + idx + ',1)">+</button>' +
+      '</div>' +
+      '<div class="cart-line-total">$' + (item.price * item.quantity).toFixed(2) + '</div>' +
+      '<button class="btn-remove" onclick="removeFromCart(' + idx + ')">✕</button>';
+    container.appendChild(div);
+  });
+
+  var summary = document.createElement('div');
+  summary.className = 'cart-summary';
+  summary.innerHTML =
+    '<div class="cart-total-row"><span>Total</span><span>$' + total.toFixed(2) + '</span></div>' +
+    '<button class="btn-checkout" onclick="checkout()">Place Order</button>';
+  container.appendChild(summary);
+}
+
+function changeQty(idx, delta) {
+  cart[idx].quantity += delta;
+  if (cart[idx].quantity <= 0) cart.splice(idx, 1);
+  saveCart(); renderCart();
+}
+
+function removeFromCart(idx) { cart.splice(idx, 1); saveCart(); renderCart(); }
+
+function clearCart() { cart = []; saveCart(); renderCart(); }
+
+function saveCart() { localStorage.setItem('acereads-cart', JSON.stringify(cart)); }
+
+function checkout() {
+  if (!token || !userId) {
+    showAlert('Please log in to place an order.', 'error');
+    showAuthModal();
+    return;
+  }
+  if (!cart.length) return showAlert('Your cart is empty.', 'error');
+
+  var items = cart.map(function(i) { return { book_id: i.id, quantity: i.quantity }; });
+  fetch(API + '/api/orders', {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + token },
+    body: JSON.stringify({ user_id: parseInt(userId), items: items })
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.error) return showAlert(data.error, 'error');
+      clearCart();
+      showAlert('Order #' + data.id + ' placed! Total: $' + parseFloat(data.total_amount).toFixed(2), 'success');
+      // Switch to My Orders tab
+      document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); });
+      document.querySelectorAll('.tab').forEach(function(el) { el.classList.remove('active'); });
+      document.getElementById('my-orders').classList.add('active');
+      document.querySelectorAll('.tab')[2].classList.add('active');
+      loadMyOrders();
+    })
+    .catch(function() { showAlert('Could not place order. Try again.', 'error'); });
+}
+
+// ── My Orders (T2-009) ───────────────────────────────────────────────────────
+function loadMyOrders() {
+  var container = document.getElementById('orders-list');
+
+  if (!token || !userId) {
+    container.innerHTML = '<div class="empty">Please <a href="#" onclick="showAuthModal()">log in</a> to view your orders.</div>';
+    return;
+  }
+
+  container.innerHTML = '<p style="text-align:center;padding:30px;color:#888">Loading…</p>';
+
+  fetch(API + '/api/orders?user_id=' + encodeURIComponent(userId), {
+    headers: { 'Authorization': 'Bearer ' + token }
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(orders) {
+      if (!orders.length) { container.innerHTML = '<p class="empty">You have no orders yet.</p>'; return; }
+      container.innerHTML = '';
+      orders.forEach(function(o) { container.appendChild(buildOrderCard(o)); });
+    })
+    .catch(function() { container.innerHTML = '<p class="empty">Could not load orders.</p>'; });
+}
+
+var loadedItems = {};
+
+function buildOrderCard(order) {
+  var card = document.createElement('div');
+  card.className = 'order-card';
+
+  var head = document.createElement('div');
+  head.className = 'order-head';
+  head.innerHTML =
+    '<div class="order-meta">' +
+      '<span class="order-num">Order #' + order.id + '</span>' +
+      '<span class="order-date">' + fmtDate(order.order_date) + '</span>' +
+      '<span class="status status-' + order.status + '">' + order.status + '</span>' +
+    '</div>' +
+    '<span style="color:#aaa">▼</span>';
+  head.onclick = function() { toggleOrderBody(order.id); };
+  card.appendChild(head);
+
+  var body = document.createElement('div');
+  body.className = 'order-body';
+  body.id = 'ob-' + order.id;
+  body.innerHTML = '<p style="color:#888;font-size:13px">Loading items…</p>';
+  card.appendChild(body);
+
+  return card;
+}
+
+function toggleOrderBody(orderId) {
+  var body = document.getElementById('ob-' + orderId);
+  var open = body.classList.contains('open');
+  body.classList.toggle('open');
+  if (!open && !loadedItems[orderId]) fetchOrderItems(orderId);
+}
+
+function fetchOrderItems(orderId) {
+  fetch(API + '/api/orders/' + orderId, { headers: { 'Authorization': 'Bearer ' + token } })
+    .then(function(r) { return r.json(); })
+    .then(function(order) {
+      loadedItems[orderId] = true;
+      var body = document.getElementById('ob-' + orderId);
+      if (!order.items || !order.items.length) {
+        body.innerHTML = '<p style="color:#888;font-size:13px">No items found.</p>';
+        return;
+      }
+      var html = '<table><thead><tr><th>Title</th><th>Author</th><th>Qty</th><th>Unit Price</th><th>Line Total</th></tr></thead><tbody>';
+      order.items.forEach(function(item) {
+        html += '<tr><td>' + esc(item.title) + '</td><td>' + esc(item.author||'—') + '</td><td>' + item.quantity +
+          '</td><td>$' + parseFloat(item.unit_price).toFixed(2) +
+          '</td><td>$' + (item.quantity * item.unit_price).toFixed(2) + '</td></tr>';
+      });
+      html += '</tbody></table><div class="order-total">Order Total: $' + parseFloat(order.total_amount).toFixed(2) + '</div>';
+      if (order.status === 'pending' || order.status === 'processing') {
+        html += '<button class="btn-cancel" onclick="cancelOrder(' + orderId + ',this)">Cancel Order</button>';
+      }
+      body.innerHTML = html;
+    });
+}
+
+function cancelOrder(orderId, btn) {
+  if (!confirm('Cancel Order #' + orderId + '?')) return;
+  btn.disabled = true; btn.textContent = 'Cancelling…';
+  fetch(API + '/api/orders/' + orderId, {
+    method: 'PUT',
+    headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + token },
+    body: JSON.stringify({ status: 'cancelled' })
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.error) { showAlert(data.error, 'error'); btn.disabled=false; btn.textContent='Cancel Order'; return; }
+      showAlert('Order #' + orderId + ' cancelled.', 'success');
+      loadedItems[orderId] = false;
+      loadMyOrders();
+    });
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function fmtDate(s) { return new Date(s).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function showAlert(msg, type) {
+  var el = document.createElement('div');
+  el.className = 'alert alert-' + type;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(function() { el.remove(); }, 3500);
+}
+
+// Close modal on overlay click
+document.getElementById('auth-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeAuthModal();
+});
+document.getElementById('auth-password').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') submitAuth();
+});
+</script>
+</body>
+</html>

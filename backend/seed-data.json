@@ -1,0 +1,137 @@
+{
+  "books": [
+    {
+      "isbn": "978-0-06-112008-4",
+      "title": "To Kill a Mockingbird",
+      "author": "Harper Lee",
+      "publisher": "HarperCollins",
+      "publication_date": "1960-07-11",
+      "category": "Fiction",
+      "price": 12.99,
+      "quantity_in_stock": 25,
+      "description": "A classic of American literature set in the Deep South during the 1930s."
+    },
+    {
+      "isbn": "978-0-7432-7356-5",
+      "title": "1984",
+      "author": "George Orwell",
+      "publisher": "Signet Classic",
+      "publication_date": "1949-06-08",
+      "category": "Fiction",
+      "price": 10.99,
+      "quantity_in_stock": 30,
+      "description": "A dystopian novel about totalitarianism and surveillance."
+    },
+    {
+      "isbn": "978-0-14-028329-7",
+      "title": "The Great Gatsby",
+      "author": "F. Scott Fitzgerald",
+      "publisher": "Scribner",
+      "publication_date": "1925-04-10",
+      "category": "Classic",
+      "price": 9.99,
+      "quantity_in_stock": 20,
+      "description": "A novel about the American Dream set in the Jazz Age."
+    },
+    {
+      "isbn": "978-0-7432-7357-2",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "publisher": "Ace Books",
+      "publication_date": "1965-08-01",
+      "category": "Sci-Fi",
+      "price": 14.99,
+      "quantity_in_stock": 15,
+      "description": "An epic science fiction saga set on a desert planet."
+    },
+    {
+      "isbn": "978-0-316-76948-0",
+      "title": "The Catcher in the Rye",
+      "author": "J.D. Salinger",
+      "publisher": "Little, Brown",
+      "publication_date": "1951-07-16",
+      "category": "Fiction",
+      "price": 11.99,
+      "quantity_in_stock": 18,
+      "description": "A coming-of-age story narrated by Holden Caulfield."
+    },
+    {
+      "isbn": "978-0-7432-7358-9",
+      "title": "The Hobbit",
+      "author": "J.R.R. Tolkien",
+      "publisher": "Houghton Mifflin",
+      "publication_date": "1937-09-21",
+      "category": "Fantasy",
+      "price": 13.99,
+      "quantity_in_stock": 22,
+      "description": "A fantasy adventure following Bilbo Baggins on an unexpected journey."
+    },
+    {
+      "isbn": "978-0-7432-7359-6",
+      "title": "Pride and Prejudice",
+      "author": "Jane Austen",
+      "publisher": "Penguin Classics",
+      "publication_date": "1813-01-28",
+      "category": "Classic",
+      "price": 8.99,
+      "quantity_in_stock": 28,
+      "description": "A romantic novel about manners and marriage in Regency England."
+    },
+    {
+      "isbn": "978-0-374-52954-0",
+      "title": "Brave New World",
+      "author": "Aldous Huxley",
+      "publisher": "Harper Perennial",
+      "publication_date": "1932-01-01",
+      "category": "Sci-Fi",
+      "price": 11.99,
+      "quantity_in_stock": 12,
+      "description": "A dystopian novel set in a futuristic World State."
+    },
+    {
+      "isbn": "978-0-7432-7360-2",
+      "title": "The Da Vinci Code",
+      "author": "Dan Brown",
+      "publisher": "Doubleday",
+      "publication_date": "2003-03-18",
+      "category": "Mystery",
+      "price": 15.99,
+      "quantity_in_stock": 10,
+      "description": "A mystery thriller involving secret societies and religious history."
+    },
+    {
+      "isbn": "978-0-525-55360-5",
+      "title": "The Midnight Library",
+      "author": "Matt Haig",
+      "publisher": "Viking",
+      "publication_date": "2020-09-29",
+      "category": "Fiction",
+      "price": 16.99,
+      "quantity_in_stock": 20,
+      "description": "A novel about a library between life and death containing books of alternate lives."
+    }
+  ],
+  "customers": [
+    {
+      "name": "Alice Johnson",
+      "email": "alice@example.com",
+      "phone": "555-0101",
+      "city": "Salt Lake City",
+      "state": "UT"
+    },
+    {
+      "name": "Bob Martinez",
+      "email": "bob@example.com",
+      "phone": "555-0102",
+      "city": "Ogden",
+      "state": "UT"
+    },
+    {
+      "name": "Carol White",
+      "email": "carol@example.com",
+      "phone": "555-0103",
+      "city": "Provo",
+      "state": "UT"
+    }
+  ]
+}

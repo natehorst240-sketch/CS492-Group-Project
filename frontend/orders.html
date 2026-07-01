@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AceReads - My Orders</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #f5f5f5; color: #333; }
+
+  header {
+    background: #2c3e50; color: white; padding: 14px 24px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  header h1 { font-size: 1.4rem; }
+  .nav-links a { color: #ccc; text-decoration: none; margin-left: 16px; font-size: 14px; }
+  .nav-links a:hover { color: white; }
+
+  .page { max-width: 900px; margin: 28px auto; padding: 0 16px; }
+
+  .page-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px;
+  }
+  .page-header h2 { font-size: 1.3rem; }
+  #refresh-btn {
+    background: #2c3e50; color: white; border: none;
+    padding: 7px 16px; border-radius: 4px; cursor: pointer; font-size: 13px;
+  }
+  #refresh-btn:hover { background: #3d5166; }
+
+  .filters {
+    background: white; border: 1px solid #ddd; border-radius: 6px;
+    padding: 12px 16px; margin-bottom: 18px;
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  }
+  .filters label { font-size: 13px; color: #555; }
+  .filters select { padding: 5px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+
+  #banner {
+    padding: 10px 14px; border-radius: 5px; margin-bottom: 16px; font-size: 14px; display: none;
+  }
+  #banner.error   { background: #f8d7da; color: #721c24; display: block; }
+  #banner.success { background: #d4edda; color: #155724; display: block; }
+  #banner.info    { background: #cce5ff; color: #004085; display: block; }
+
+  .order-card { background: white; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 14px; overflow: hidden; }
+
+  .order-card-header {
+    padding: 12px 16px; display: flex; justify-content: space-between;
+    align-items: center; border-bottom: 1px solid #eee; cursor: pointer; user-select: none;
+  }
+  .order-card-header:hover { background: #fafafa; }
+  .order-meta { display: flex; align-items: center; gap: 12px; }
+  .order-num  { font-weight: bold; font-size: 15px; }
+  .order-date { font-size: 13px; color: #777; }
+  .order-right { display: flex; align-items: center; gap: 10px; }
+  .order-total { font-weight: bold; font-size: 15px; }
+  .chevron { font-size: 12px; color: #999; transition: transform .2s; }
+  .chevron.open { transform: rotate(180deg); }
+
+  .status { padding: 3px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; text-transform: capitalize; }
+  .status-pending   { background: #fff3cd; color: #856404; }
+  .status-processing { background: #cce5ff; color: #004085; }
+  .status-shipped   { background: #d1ecf1; color: #0c5460; }
+  
+  .status-cancelled { background: #f8d7da; color: #721c24; }
+
+  .progress-bar { padding: 14px 16px 6px; border-bottom: 1px solid #eee; display: none; }
+  .progress-steps { display: flex; align-items: center; }
+  .step { display: flex; flex-direction: column; align-items: center; flex: 1; font-size: 11px; color: #aaa; }
+  .step-dot {
+    width: 18px; height: 18px; border-radius: 50%; background: #ddd;
+    margin-bottom: 5px; z-index: 1;
+    display: flex; align-items: center; justify-content: center; font-size: 10px; color: white;
+  }
+  .step.done .step-dot  { background: #27ae60; }
+  .step.done            { color: #27ae60; }
+  .step.active .step-dot { background: #2980b9; }
+  .step.active          { color: #2980b9; font-weight: bold; }
+  .step-line { flex: 1; height: 3px; background: #ddd; margin-top: -14px; }
+  .step-line.done { background: #27ae60; }
+
+  .order-body { padding: 14px 16px; display: none; }
+  .order-body.open { display: block; }
+
+  table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+  th, td { border: 1px solid #eee; padding: 8px 10px; text-align: left; font-size: 13px; }
+  th { background: #f8f8f8; font-weight: bold; color: #555; }
+  tr:hover td { background: #fafafa; }
+  .line-total { text-align: right; font-weight: bold; }
+
+  .order-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid #eee; }
+  .total-label { font-size: 15px; font-weight: bold; }
+
+  .cancel-btn { background: #e74c3c; color: white; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+  .cancel-btn:hover { background: #c0392b; }
+  .cancel-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+  .shipping-info { font-size: 12px; color: #666; margin-bottom: 10px; padding: 6px 10px; background: #f9f9f9; border-radius: 4px; }
+  .shipping-info span { font-weight: bold; color: #333; }
+
+  .state-msg { text-align: center; padding: 60px 20px; color: #888; font-size: 15px; }
+  .state-msg .icon { font-size: 48px; display: block; margin-bottom: 12px; }
+
+  #login-wall { text-align: center; padding: 80px 20px; }
+  #login-wall p { color: #666; margin-bottom: 16px; }
+  #login-wall a { display: inline-block; background: #2c3e50; color: white; padding: 10px 24px; border-radius: 4px; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📚 AceReads</h1>
+  <div class="nav-links">
+    <a href="index.html">← Back to Catalog</a>
+  </div>
+</header>
+
+<div class="page">
+  <div id="login-wall" style="display:none">
+    <div style="text-align:center;padding:80px 20px">
+      <span style="font-size:48px">🔒</span>
+      <p style="color:#666;margin:16px 0">You need to be logged in to view your orders.</p>
+      <a href="index.html" style="display:inline-block;background:#2c3e50;color:white;padding:10px 24px;border-radius:4px;text-decoration:none">Go to Catalog &amp; Login</a>
+    </div>
+  </div>
+  <div id="main-content" style="display:none">
+    <div class="page-header">
+      <h2>My Orders</h2>
+      <button id="refresh-btn" onclick="loadOrders()">&#8635; Refresh</button>
+    </div>
+
+    <div class="filters">
+      <label>Filter:</label>
+      <select id="status-filter" onchange="renderOrders()">
+        <option value="">All Orders</option>
+        <option value="pending">Pending</option>
+        <option value="processing">Processing</option>
+        <option value="completed">Completed</option>
+        
+        <option value="cancelled">Cancelled</option>
+      </select>
+      <label>Sort:</label>
+      <select id="sort-select" onchange="renderOrders()">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+        <option value="total-high">Total: High to Low</option>
+        <option value="total-low">Total: Low to High</option>
+      </select>
+    </div>
+
+    <div id="banner"></div>
+    <div id="orders-list"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+var userId    = sessionStorage.getItem('userId');
+var token     = sessionStorage.getItem('token');
+var allOrders = [];
+var loaded    = {};
+
+if (!userId || !token) {
+  document.getElementById('login-wall').style.display = 'block';
+  document.getElementById('main-content').style.display = 'none';
+} else {
+  document.getElementById('main-content').style.display = 'block';
+  document.getElementById('login-wall').style.display   = 'none';
+  loadOrders();
+}
+
+function loadOrders() {
+  showBanner('Loading your orders\u2026', 'info');
+  document.getElementById('orders-list').innerHTML =
+    '<div class="state-msg"><span class="icon">\u23F3</span>Loading\u2026</div>';
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '/api/orders?user_id=' + encodeURIComponent(userId));
+  xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      allOrders = JSON.parse(xhr.responseText);
+      hideBanner();
+      renderOrders();
+    } else if (xhr.status === 401) {
+      showBanner('Session expired \u2014 please log in again.', 'error');
+      document.getElementById('orders-list').innerHTML = '';
+    } else {
+      showBanner('Could not load orders. Try refreshing.', 'error');
+      document.getElementById('orders-list').innerHTML = '';
+    }
+  };
+  xhr.onerror = function () { showBanner('Network error \u2014 is the server running?', 'error'); };
+  xhr.send();
+}
+
+function renderOrders() {
+  var filter    = document.getElementById('status-filter').value;
+  var sort      = document.getElementById('sort-select').value;
+  var container = document.getElementById('orders-list');
+  var orders    = allOrders.slice();
+
+  if (filter) orders = orders.filter(function (o) { return o.status === filter; });
+
+  orders.sort(function (a, b) {
+    if (sort === 'newest')     return new Date(b.created_at) - new Date(a.created_at);
+    if (sort === 'oldest')     return new Date(a.created_at) - new Date(b.created_at);
+    if (sort === 'total-high') return parseFloat(b.total_amount) - parseFloat(a.total_amount);
+    if (sort === 'total-low')  return parseFloat(a.total_amount) - parseFloat(b.total_amount);
+    return 0;
+  });
+
+  if (orders.length === 0) {
+    container.innerHTML = '<div class="state-msg"><span class="icon">\uD83D\uDCED</span>' +
+      (filter ? 'No ' + filter + ' orders found.' : 'You have no orders yet.') + '</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  orders.forEach(function (o) { container.appendChild(buildCard(o)); });
+}
+
+function buildCard(order) {
+  var card = document.createElement('div');
+  card.className = 'order-card';
+
+  var header = document.createElement('div');
+  header.className = 'order-card-header';
+  header.innerHTML =
+    '<div class="order-meta">' +
+      '<span class="order-num">Order #' + order.id + '</span>' +
+      '<span class="order-date">' + fmtDate(order.created_at) + '</span>' +
+      '<span class="status status-' + order.status + '">' + order.status + '</span>' +
+    '</div>' +
+    '<div class="order-right">' +
+      '<span class="order-total">$' + parseFloat(order.total_amount).toFixed(2) + '</span>' +
+      '<span class="chevron" id="chev-' + order.id + '">\u25BC</span>' +
+    '</div>';
+  header.addEventListener('click', function () { toggle(order.id); });
+  card.appendChild(header);
+
+  if (order.status !== 'cancelled') {
+    var prog = document.createElement('div');
+    prog.className = 'progress-bar';
+    prog.id = 'prog-' + order.id;
+    prog.innerHTML = buildProgress(order.status);
+    card.appendChild(prog);
+  }
+
+  var body = document.createElement('div');
+  body.className = 'order-body';
+  body.id = 'body-' + order.id;
+  body.innerHTML = '<div class="state-msg" style="padding:20px">\u23F3 Loading items\u2026</div>';
+  card.appendChild(body);
+
+  return card;
+}
+
+function toggle(orderId) {
+  var body = document.getElementById('body-' + orderId);
+  var prog = document.getElementById('prog-' + orderId);
+  var chev = document.getElementById('chev-' + orderId);
+  var open = body.classList.contains('open');
+
+  if (open) {
+    body.classList.remove('open');
+    if (prog) prog.style.display = 'none';
+    chev.classList.remove('open');
+  } else {
+    body.classList.add('open');
+    if (prog) prog.style.display = 'block';
+    chev.classList.add('open');
+    if (!loaded[orderId]) fetchItems(orderId);
+  }
+}
+
+function fetchItems(orderId) {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '/api/orders/' + orderId);
+  xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+  xhr.onload = function () {
+    loaded[orderId] = true;
+    var body = document.getElementById('body-' + orderId);
+    if (xhr.status !== 200) {
+      body.innerHTML = '<p style="color:#c0392b;padding:10px">Could not load items.</p>';
+      return;
+    }
+    var order = JSON.parse(xhr.responseText);
+    body.innerHTML = '';
+
+    if (order.shipping_address) {
+      var addr = document.createElement('div');
+      addr.className = 'shipping-info';
+      addr.innerHTML = '<span>Ship to:</span> ' + esc(order.shipping_address);
+      body.appendChild(addr);
+    }
+
+    if (!order.items || !order.items.length) {
+      body.innerHTML += '<p style="color:#888;font-size:13px;padding:8px 0">No items found.</p>';
+    } else {
+      var table = document.createElement('table');
+      table.innerHTML = '<thead><tr><th>Title</th><th>Author</th><th>Qty</th><th>Price Each</th><th style="text-align:right">Line Total</th></tr></thead>';
+      var tbody = document.createElement('tbody');
+      order.items.forEach(function (item) {
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + esc(item.title) + '</td>' +
+          '<td>' + esc(item.author || '\u2014') + '</td>' +
+          '<td>' + item.quantity + '</td>' +
+          '<td>$' + parseFloat(item.price_at_purchase).toFixed(2) + '</td>' +
+          '<td class="line-total">$' + (item.quantity * parseFloat(item.price_at_purchase)).toFixed(2) + '</td>';
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      body.appendChild(table);
+    }
+
+    var footer = document.createElement('div');
+    footer.className = 'order-footer';
+    var tot = document.createElement('span');
+    tot.className = 'total-label';
+    tot.textContent = 'Order Total: $' + parseFloat(order.total_amount).toFixed(2);
+    footer.appendChild(tot);
+
+    if (order.status === 'pending' || order.status === 'processing') {
+      var btn = document.createElement('button');
+      btn.className = 'cancel-btn';
+      btn.textContent = 'Cancel Order';
+      btn.onclick = function () { cancelOrder(order.id, btn); };
+      footer.appendChild(btn);
+    }
+    body.appendChild(footer);
+  };
+  xhr.onerror = function () {
+    document.getElementById('body-' + orderId).innerHTML =
+      '<p style="color:#c0392b;padding:10px">Network error loading items.</p>';
+  };
+  xhr.send();
+}
+
+function cancelOrder(orderId, btn) {
+  if (!confirm('Cancel Order #' + orderId + '?')) return;
+  btn.disabled = true;
+  btn.textContent = 'Cancelling\u2026';
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('PUT', '/api/orders/' + orderId);
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      showBanner('Order #' + orderId + ' cancelled.', 'success');
+      for (var i = 0; i < allOrders.length; i++) {
+        if (allOrders[i].id === orderId) { allOrders[i].status = 'cancelled'; break; }
+      }
+      loaded[orderId] = false;
+      renderOrders();
+    } else {
+      var d = JSON.parse(xhr.responseText || '{}');
+      showBanner(d.error || 'Could not cancel order.', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Cancel Order';
+    }
+  };
+  xhr.onerror = function () {
+    showBanner('Network error.', 'error');
+    btn.disabled = false; btn.textContent = 'Cancel Order';
+  };
+  xhr.send(JSON.stringify({ status: 'cancelled' }));
+}
+
+var STEPS  = ['pending','processing','completed'];
+var LABELS = { pending:'Ordered', processing:'Processing', completed:'Completed' };
+
+function buildProgress(current) {
+  var idx  = STEPS.indexOf(current);
+  var html = '<div class="progress-steps">';
+  STEPS.forEach(function (s, i) {
+    var cls = i < idx ? 'done' : i === idx ? 'active' : '';
+    html += '<div class="step ' + cls + '"><div class="step-dot">' + (i < idx ? '\u2713' : i+1) + '</div>' + LABELS[s] + '</div>';
+    if (i < STEPS.length - 1) html += '<div class="step-line ' + (i < idx ? 'done' : '') + '"></div>';
+  });
+  return html + '</div>';
+}
+
+function fmtDate(s) {
+  return new Date(s).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+}
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function showBanner(msg, type) {
+  var el = document.getElementById('banner');
+  el.textContent = msg; el.className = type;
+}
+function hideBanner() {
+  var el = document.getElementById('banner');
+  el.className = ''; el.textContent = '';
+}
+function doLogout() { sessionStorage.clear(); window.location.href = 'index.html'; }
+</script>
+</body>
+</html>

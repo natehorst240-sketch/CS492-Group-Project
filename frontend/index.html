@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AceReads - Owner Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .owner-badge {
+      display: inline-block; background: rgba(255,255,255,.2);
+      padding: 3px 12px; border-radius: 10px; font-size: 12px;
+      margin-left: 10px; vertical-align: middle;
+    }
+    .store-link {
+      display: inline-block; background: rgba(255,255,255,.15);
+      color: white; text-decoration: none; padding: 8px 18px;
+      border-radius: 6px; font-size: 13px; margin-left: 10px;
+    }
+    .store-link:hover { background: rgba(255,255,255,.28); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📚 AceReads <span class="owner-badge">Owner Dashboard</span></h1>
+      <div style="margin-bottom:12px">
+        <a href="store.html" class="store-link">🛍 Customer Store ↗</a>
+      </div>
+      <nav>
+        <button class="nav-btn active" onclick="showSection('dashboard')">Dashboard</button>
+        <button class="nav-btn" onclick="showSection('books')">Books</button>
+        <button class="nav-btn" onclick="showSection('customers')">Customers</button>
+        <button class="nav-btn" onclick="showSection('orders')">Orders</button>
+        <button class="nav-btn" onclick="showSection('inventory')">Inventory</button>
+        <button class="nav-btn" onclick="showSection('reports')">Reports</button>
+      </nav>
+    </header>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="section active">
+      <h2>Dashboard</h2>
+      <div class="dashboard-grid">
+        <div class="stat-card"><h3>Total Books</h3><p id="totalBooks" class="stat-number">0</p></div>
+        <div class="stat-card"><h3>Total Customers</h3><p id="totalCustomers" class="stat-number">0</p></div>
+        <div class="stat-card"><h3>Total Orders</h3><p id="totalOrders" class="stat-number">0</p></div>
+        <div class="stat-card"><h3>Total Sales</h3><p id="totalSales" class="stat-number">$0.00</p></div>
+      </div>
+      <div id="dashboardDetails"></div>
+    </section>
+
+    <!-- BOOKS -->
+    <section id="books" class="section">
+      <h2>Books Management</h2>
+      <div class="form-section">
+        <h3>Add New Book</h3>
+        <form id="bookForm">
+          <input type="text" placeholder="ISBN" id="bookIsbn" required>
+          <input type="text" placeholder="Title" id="bookTitle" required>
+          <input type="text" placeholder="Author" id="bookAuthor" required>
+          <input type="text" placeholder="Publisher" id="bookPublisher">
+          <input type="date" id="bookPubDate">
+          <input type="text" placeholder="Category" id="bookCategory">
+          <input type="number" placeholder="Price" id="bookPrice" step="0.01" required>
+          <input type="number" placeholder="Quantity in Stock" id="bookQuantity" required>
+          <textarea placeholder="Description" id="bookDescription"></textarea>
+          <button type="submit">Add Book</button>
+        </form>
+      </div>
+      <h3>Books List</h3>
+      <div class="table-container">
+        <table>
+          <thead><tr><th>ISBN</th><th>Title</th><th>Author</th><th>Category</th><th>Price</th><th>Stock</th><th>Actions</th></tr></thead>
+          <tbody id="booksTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CUSTOMERS -->
+    <section id="customers" class="section">
+      <h2>Customers Management</h2>
+      <div class="form-section">
+        <h3>Add New Customer</h3>
+        <form id="customerForm">
+          <input type="text" placeholder="Name" id="customerName" required>
+          <input type="email" placeholder="Email" id="customerEmail">
+          <input type="tel" placeholder="Phone" id="customerPhone">
+          <input type="text" placeholder="Address" id="customerAddress">
+          <input type="text" placeholder="City" id="customerCity">
+          <input type="text" placeholder="State" id="customerState">
+          <input type="text" placeholder="Zip Code" id="customerZip">
+          <button type="submit">Add Customer</button>
+        </form>
+      </div>
+      <h3>Customers List</h3>
+      <div class="table-container">
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>City</th><th>Actions</th></tr></thead>
+          <tbody id="customersTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ORDERS -->
+    <section id="orders" class="section">
+      <h2>Orders Management</h2>
+      <div class="form-section">
+        <h3>Create New Order</h3>
+        <form id="orderForm">
+          <select id="orderCustomer" required><option value="">Select Customer</option></select>
+          <div id="orderItemsContainer">
+            <div class="order-item">
+              <select class="orderBook" required><option value="">Select Book</option></select>
+              <input type="number" class="orderQuantity" placeholder="Quantity" min="1" required>
+            </div>
+          </div>
+          <button type="button" onclick="addOrderItem()">+ Add Item</button>
+          <button type="submit">Create Order</button>
+        </form>
+      </div>
+      <h3>All Orders</h3>
+      <div class="table-container">
+        <table>
+          <thead><tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="ordersTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- INVENTORY -->
+    <section id="inventory" class="section">
+      <h2>Inventory Management</h2>
+      <div class="form-section">
+        <h3>Update Inventory</h3>
+        <form id="inventoryForm">
+          <select id="inventoryBook" required><option value="">Select Book</option></select>
+          <input type="number" placeholder="Quantity Change (use negative to reduce)" id="quantityChange" required>
+          <input type="text" placeholder="Reason" id="inventoryReason">
+          <button type="submit">Update Inventory</button>
+        </form>
+      </div>
+      <h3>Current Inventory</h3>
+      <div class="table-container">
+        <table>
+          <thead><tr><th>Title</th><th>Author</th><th>Quantity in Stock</th><th>Price</th></tr></thead>
+          <tbody id="inventoryTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- REPORTS -->
+    <section id="reports" class="section">
+      <h2>Reports &amp; Analytics</h2>
+      <div class="reports-grid">
+        <div class="report-card"><h3>Sales Report</h3><div id="salesReport"></div></div>
+        <div class="report-card"><h3>Inventory Value Report</h3><div id="inventoryReport"></div></div>
+      </div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

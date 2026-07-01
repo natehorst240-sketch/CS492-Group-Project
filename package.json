@@ -1,18 +1,10 @@
 {
-  "name": "acereads-team-project",
+  "name": "acereads",
   "version": "1.0.0",
-  "private": true,
-  "description": "CS492 AceReads bookstore management system organized by sprint and task ID.",
-  "main": "src/server.js",
+  "description": "AceReads Bookstore Management System — CS492 Group Project 2",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node --watch src/server.js",
-    "check": "node --check src/server.js && node --check src/db.js && node --check src/sprint-1/T1-001_user-registration.js && node --check src/sprint-1/T1-002_password-security.js && node --check src/sprint-1/T1-003_login-sessions.js && node --check src/sprint-2/T2-002_cart-api.js && node --check src/sprint-2/T2-008_order-management-backend.js"
-  },
-  "dependencies": {
-    "bcryptjs": "^3.0.2",
-    "dotenv": "^16.4.7",
-    "jsonwebtoken": "^9.0.2",
-    "mysql2": "^3.12.0"
+    "start": "cd backend && node server.js",
+    "install-deps": "cd backend && npm install",
+    "test": "cd backend && npm test"
   }
 }
